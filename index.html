@@ -13,12 +13,12 @@ select,button{font-size:15px}
 #ng{background:#e74c3c}#ok{background:#27ae60}
 #stat{text-align:center;color:#666;margin-top:12px;font-size:14px}
 #bar{height:6px;background:#ddd;border-radius:3px;margin-top:8px}#fill{height:6px;background:#27ae60;border-radius:3px;width:0}
-</style><style>.btns{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:#fff;box-shadow:0 -2px 8px rgba(0,0,0,.08);z-index:9;max-width:none!important;margin:0!important}body{padding-bottom:110px}</style></head><body>
+</style><style>#card{position:fixed;left:12px;right:12px;bottom:calc(16px + env(safe-area-inset-bottom));max-width:520px;margin:0 auto;height:52vh;min-height:0;overflow:auto;box-sizing:border-box;z-index:9;transition:transform .25s,opacity .25s;touch-action:pan-y}body{padding-bottom:calc(52vh + 40px)}#swipehint{position:fixed;left:0;right:0;bottom:calc(52vh + 22px);text-align:center;font-size:13px;color:#888;z-index:9}</style></head><body>
 <header><b>速単 未定着カード</b><select id="cat"></select></header>
-<div id="wrap">
-<div id="card"><div id="num"></div><div id="word"></div><div id="hint">タップで答え</div>
+<div id="swipehint">← わからない　｜　わかった →</div><div id="wrap">
+<div id="card"><div id="num"></div><div id="word"></div><div id="hint">タップで答え／左右にスワイプ</div>
 <div id="back"><div class="ja" id="ja"></div><div class="zh" id="zh"></div><div class="ex" id="ex"></div><div class="note" id="note"></div></div></div>
-<div class="btns"><button id="ng">✕ まだ</button><button id="ok">○ 覚えた</button></div>
+
 <div id="stat"></div><div id="bar"><div id="fill"></div></div>
 <p style="text-align:center;margin-top:16px"><button id="miss" style="padding:8px 16px;border-radius:8px;border:1px solid #ccc;background:#fff">間違えた単語を見る</button></p><div id="misslist" style="display:none;margin:8px 0"></div><p style="text-align:center;margin-top:24px"><button id="reset" style="background:none;border:0;color:#999">記録をリセット</button></p>
 </div>
@@ -40,7 +40,14 @@ function next(){shown=false;document.getElementById('back').style.display='none'
 document.getElementById('card').onclick=()=>{if(!cur)return;shown=true;back.style.display='block';hint.style.display='none'};
 function mark(good){if(!cur)return;const s=S[cur.n]||{ok:0};s.ok=good?s.ok+1:0;if(!good)s.ng=(s.ng||0)+1;S[cur.n]=s;localStorage.setItem(K,JSON.stringify(S));
  if(!mastered(cur)){const pos=good?queue.length:Math.min(4,queue.length);queue.splice(pos,0,cur)}next()}
-ok.onclick=()=>mark(true);ng.onclick=()=>mark(false);sel.onchange=build;
+(()=>{const c=document.getElementById('card');let x0=null,dx=0,moved=false;
+c.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;dx=0;moved=false;c.style.transition='none'},{passive:true});
+c.addEventListener('touchmove',e=>{if(x0===null)return;dx=e.touches[0].clientX-x0;if(Math.abs(dx)>10)moved=true;c.style.transform='translateX('+dx+'px) rotate('+dx/20+'deg)';c.style.background=dx>40?'#e8f8ee':dx<-40?'#fdecea':'#fff'},{passive:true});
+c.addEventListener('touchend',()=>{c.style.transition='';const d=dx;x0=null;
+ if(Math.abs(d)>80&&cur){c.style.transform='translateX('+(d>0?600:-600)+'px)';c.style.opacity='0';setTimeout(()=>{mark(d>0);c.style.transition='none';c.style.transform='';c.style.opacity='1';c.style.background='#fff';setTimeout(()=>c.style.transition='',20)},220)}
+ else{c.style.transform='';c.style.background='#fff'}});
+c.addEventListener('click',e=>{if(moved){e.stopImmediatePropagation();moved=false}},true);
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')mark(true);if(e.key==='ArrowLeft')mark(false)});})();sel.onchange=build;
 miss.onclick=()=>{const L=document.getElementById('misslist');if(L.style.display==='block'){L.style.display='none';return}
 const r=W.filter(x=>(S[x.n]?.ng||0)>0).sort((a,b)=>S[b.n].ng-S[a.n].ng);
 L.innerHTML=r.length?'<table style="width:100%;border-collapse:collapse">'+r.map(x=>'<tr style="border-bottom:1px solid #eee"><td style="padding:6px"><b>'+x.w+'</b><br><small>'+x.ja+'</small></td><td style="text-align:right;padding:6px;color:#c33">✕ '+S[x.n].ng+'回</td></tr>').join('')+'</table>':'<p style="text-align:center;color:#999">まだ間違えた単語はありません</p>';L.style.display='block'};
