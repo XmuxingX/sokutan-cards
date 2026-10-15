@@ -16,7 +16,7 @@ select,button{font-size:15px}
 </style><style>#card{position:fixed;left:12px;right:12px;bottom:calc(16vh + env(safe-area-inset-bottom));max-width:520px;margin:0 auto;height:52vh;min-height:0;overflow:auto;box-sizing:border-box;z-index:9;transition:transform .25s,opacity .25s;touch-action:pan-y}body{padding-bottom:calc(68vh + 40px)}#swipehint{position:fixed;left:0;right:0;bottom:calc(68vh + 22px);text-align:center;font-size:13px;color:#888;z-index:9}</style></head><body>
 <header><b>速単 未定着カード</b><select id="cat"></select></header>
 <div id="swipehint">← わからない　｜　わかった →</div><div id="wrap">
-<div id="card"><div id="num"></div><div id="word"></div><div id="hint">タップで答え／左右にスワイプ</div>
+<div id="card"><div id="num"></div><div id="word"></div><button id="spk" style="font-size:26px;background:#eef3fa;border:0;border-radius:50%;width:52px;height:52px">🔊</button><div id="hint">タップで答え／左右にスワイプ</div>
 <div id="back"><div class="ja" id="ja"></div><div class="zh" id="zh"></div><div class="ex" id="ex"></div><div class="note" id="note"></div></div></div>
 
 <div id="stat"></div><div id="bar"><div id="fill"></div></div>
@@ -52,5 +52,8 @@ miss.onclick=()=>{const L=document.getElementById('misslist');if(L.style.display
 const r=W.filter(x=>(S[x.n]?.ng||0)>0).sort((a,b)=>S[b.n].ng-S[a.n].ng);
 L.innerHTML=r.length?'<table style="width:100%;border-collapse:collapse">'+r.map(x=>'<tr style="border-bottom:1px solid #eee"><td style="padding:6px"><b>'+x.w+'</b><br><small>'+x.ja+'</small></td><td style="text-align:right;padding:6px;color:#c33">✕ '+S[x.n].ng+'回</td></tr>').join('')+'</table>':'<p style="text-align:center;color:#999">まだ間違えた単語はありません</p>';L.style.display='block'};
 reset.onclick=()=>{if(confirm('記録を消しますか？')){S={};localStorage.removeItem(K);build()}};
+function say(t){if(!t||!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=0.9;const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.startsWith('en'));if(v)u.voice=v;speechSynthesis.speak(u)}
+spk.addEventListener('click',e=>{e.stopPropagation();if(cur)say(cur.w)});
+spk.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});
 build();
 </script></body></html>
