@@ -48,9 +48,9 @@ c.addEventListener('touchend',()=>{c.style.transition='';const d=dx;x0=null;
  else{c.style.transform='';c.style.background='#fff'}});
 c.addEventListener('click',e=>{if(moved){e.stopImmediatePropagation();moved=false}},true);
 document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')mark(true);if(e.key==='ArrowLeft')mark(false)});})();sel.onchange=build;
-miss.onclick=()=>{const L=document.getElementById('misslist');if(L.style.display==='block'){L.style.display='none';return}
+miss.onclick=()=>{const L=document.getElementById('misslist');const C=document.getElementById('card'),H=document.getElementById('swipehint');if(L.style.display==='block'){L.style.display='none';C.style.display='';H.style.display='';document.body.style.paddingBottom='';miss.textContent='間違えた単語を見る';return}C.style.display='none';H.style.display='none';miss.textContent='カードに戻る';
 const r=W.filter(x=>(S[x.n]?.ng||0)>0).sort((a,b)=>S[b.n].ng-S[a.n].ng);
-L.innerHTML=r.length?'<table style="width:100%;border-collapse:collapse">'+r.map(x=>'<tr style="border-bottom:1px solid #eee"><td style="padding:6px"><b>'+x.w+'</b><br><small>'+x.ja+'</small></td><td style="text-align:right;padding:6px;color:#c33">✕ '+S[x.n].ng+'回</td></tr>').join('')+'</table>':'<p style="text-align:center;color:#999">まだ間違えた単語はありません</p>';L.style.display='block'};
+L.innerHTML=r.length?'<table style="width:100%;border-collapse:collapse">'+r.map(x=>'<tr style="border-bottom:1px solid #eee"><td style="padding:6px"><b>'+x.w+'</b><br><small>'+x.ja+'</small></td><td style="text-align:right;padding:6px;color:#c33">✕ '+S[x.n].ng+'回</td></tr>').join('')+'</table>':'<p style="text-align:center;color:#999">まだ間違えた単語はありません</p>';L.style.display='block';document.body.style.paddingBottom='40px'};
 reset.onclick=()=>{if(confirm('記録を消しますか？')){S={};localStorage.removeItem(K);build()}};
 function say(t){if(!t||!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=0.9;const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.startsWith('en'));if(v)u.voice=v;speechSynthesis.speak(u)}
 spk.addEventListener('click',e=>{e.stopPropagation();if(cur)say(cur.w)});
