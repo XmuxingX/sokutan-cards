@@ -44,7 +44,7 @@ function mark(good){if(!cur)return;const s=S[cur.n]||{ok:0};s.ok=good?s.ok+1:0;i
 c.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;dx=0;moved=false;c.style.transition='none'},{passive:true});
 c.addEventListener('touchmove',e=>{if(x0===null)return;dx=e.touches[0].clientX-x0;if(Math.abs(dx)>10)moved=true;c.style.transform='translateX('+dx+'px) rotate('+dx/20+'deg)';c.style.background=dx>40?'#e8f8ee':dx<-40?'#fdecea':'#fff'},{passive:true});
 c.addEventListener('touchend',()=>{c.style.transition='';const d=dx;x0=null;
- if(Math.abs(d)>80&&cur){c.style.transform='translateX('+(d>0?600:-600)+'px)';c.style.opacity='0';setTimeout(()=>{mark(d>0);c.style.transition='none';c.style.transform='';c.style.opacity='1';c.style.background='#fff';setTimeout(()=>c.style.transition='',20)},220)}
+ if(Math.abs(d)>80&&cur){c.style.transform='translateX('+(d>0?600:-600)+'px)';c.style.opacity='0';const nx=queue[0];if(nx&&(S[cur.n]?.ok||0)<2||true){};setTimeout(()=>{mark(d>0);c.style.transition='none';c.style.transform='';c.style.opacity='1';c.style.background='#fff';setTimeout(()=>c.style.transition='',20)},120)}
  else{c.style.transform='';c.style.background='#fff'}});
 c.addEventListener('click',e=>{if(moved){e.stopImmediatePropagation();moved=false}},true);
 document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')mark(true);if(e.key==='ArrowLeft')mark(false)});})();sel.onchange=build;
@@ -52,7 +52,9 @@ miss.onclick=()=>{const L=document.getElementById('misslist');const C=document.g
 const r=W.filter(x=>(S[x.n]?.ng||0)>0).sort((a,b)=>S[b.n].ng-S[a.n].ng);
 L.innerHTML=r.length?'<table style="width:100%;border-collapse:collapse">'+r.map(x=>'<tr style="border-bottom:1px solid #eee"><td style="padding:6px"><b>'+x.w+'</b><br><small>'+x.ja+'</small></td><td style="text-align:right;padding:6px;color:#c33">✕ '+S[x.n].ng+'回</td></tr>').join('')+'</table>':'<p style="text-align:center;color:#999">まだ間違えた単語はありません</p>';L.style.display='block';document.body.style.paddingBottom='40px'};
 reset.onclick=()=>{if(confirm('記録を消しますか？')){S={};localStorage.removeItem(K);build()}};
-function say(t){if(!t||!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=0.9;const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.startsWith('en'));if(v)u.voice=v;speechSynthesis.speak(u)}
+let EV=null;function pickV(){const vs=speechSynthesis.getVoices();const pr=[v=>v.lang==='en-US'&&/Samantha|Google US|Alex|Aria|Jenny/i.test(v.name),v=>v.lang==='en-US',v=>v.lang==='en-GB',v=>/^en[-_]/i.test(v.lang)];for(const f of pr){const v=vs.find(f);if(v){EV=v;return}}}
+if(window.speechSynthesis){pickV();speechSynthesis.onvoiceschanged=pickV}
+function say(t){if(!t||!window.speechSynthesis)return;if(!EV)pickV();if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=1;if(EV)u.voice=EV;speechSynthesis.speak(u)}
 spk.addEventListener('click',e=>{e.stopPropagation();if(cur)say(cur.w)});
 spk.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});
 let unlocked=false;document.addEventListener('touchend',()=>{if(!unlocked){unlocked=true;if(cur)say(cur.w)}},{once:true});
