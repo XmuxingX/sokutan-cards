@@ -35,7 +35,7 @@ function build(){queue=pool().filter(x=>!mastered(x)).sort(()=>Math.random()-.5)
 function next(){shown=false;document.getElementById('back').style.display='none';document.getElementById('hint').style.display='block';
  const p=pool(),m=p.filter(mastered).length;document.getElementById('stat').textContent=`卒業 ${m} / ${p.length}（3回連続○で卒業）`;document.getElementById('fill').style.width=(100*m/p.length)+'%';
  if(!queue.length){cur=null;document.getElementById('num').textContent='';document.getElementById('word').textContent='🎉 全部卒業！';document.getElementById('hint').style.display='none';return}
- cur=queue.shift();document.getElementById('num').textContent='#'+cur.n+'　'+cur.cat;document.getElementById('word').textContent=cur.w;
+ cur=queue.shift();document.getElementById('num').textContent='#'+cur.n+'　'+cur.cat;document.getElementById('word').textContent=cur.w;say(cur.w);
  ja.textContent=cur.ja;zh.textContent='〔中〕'+cur.zh;ex.textContent='例) '+cur.ex;note.textContent=cur.note?'※ '+cur.note:''}
 document.getElementById('card').onclick=()=>{if(!cur)return;shown=true;back.style.display='block';hint.style.display='none'};
 function mark(good){if(!cur)return;const s=S[cur.n]||{ok:0};s.ok=good?s.ok+1:0;if(!good)s.ng=(s.ng||0)+1;S[cur.n]=s;localStorage.setItem(K,JSON.stringify(S));
@@ -55,5 +55,6 @@ reset.onclick=()=>{if(confirm('記録を消しますか？')){S={};localStorage.
 function say(t){if(!t||!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=0.9;const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.startsWith('en'));if(v)u.voice=v;speechSynthesis.speak(u)}
 spk.addEventListener('click',e=>{e.stopPropagation();if(cur)say(cur.w)});
 spk.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});
+let unlocked=false;document.addEventListener('touchend',()=>{if(!unlocked){unlocked=true;if(cur)say(cur.w)}},{once:true});
 build();
 </script></body></html>
